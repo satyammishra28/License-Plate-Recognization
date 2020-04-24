@@ -46,7 +46,7 @@ def uploadImage():
             flash('wrong file selected, only PNG and JPG images allowed','danger')
             return redirect(request.url)
    
-    return render_template('upload.html',title='upload new Image')
+    return render_template('upload.html',title='view uploads')
 
 def showtext(filepath):
     servepath = filepath[filepath.find('static')-1:]
@@ -55,12 +55,18 @@ def showtext(filepath):
     scan =Prediction(img_id=session['imgid'],output=text)
     db.session.add(scan)
     db.session.commit()
-    return render_template('result.html', filename = servepath, data = json.loads(text))
+    return render_template('result.html',filename = servepath, data = json.loads(text))
 
 @app.route('/predict')
 def predict():
     filename=session['path']
     return showtext(filename)
+
+@app.route("/history")
+def history():
+    data = Prediction.query.all()
+    return render_template('history.html', data=data)
+
 
     
 

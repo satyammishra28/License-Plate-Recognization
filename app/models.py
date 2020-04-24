@@ -56,6 +56,6 @@ class Prediction(db.Model):
     output = db.Column(db.String)
 
     def __repr__(self):
-        return self.ouput
+        return f"{self.img_id}"
 
 

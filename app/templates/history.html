@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block css %}
+<style>
+    body{
+      background-image: url('/static/images/bg_2.png');
+    
+    }
+    /*.container{
+      background-color: rgba(85, 71, 71, 0.98);
+    }*/
+</style>
+{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10">
+            <table class="table table-striped table-inverse table-responsive">
+                <thead class="thead-inverse">
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                           
+                           {% for item in data %}
+                           <tr>                           
+                               <td scope="row">{{item.id}}</td>
+                           <td>{{item.img_id}}</td>
+                           <td>{{item.output.split(',')}}</td>
+                           <td>{{item.created_on}}</td>
+                        </tr>
+                           {% endfor %}
+                           
+                        
+                    </tbody>
+            </table>
+        </div>
+    </div>
+  
+    
+</div>
+{% endblock %}
