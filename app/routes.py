@@ -59,8 +59,12 @@ def showtext(filepath):
 
 @app.route('/predict')
 def predict():
-    filename=session['path']
-    return showtext(filename)
+    if 'path' in session:
+        filename=session['path']
+        return showtext(filename)
+    else:
+        flash("please upload a new image to view prediction","warning")
+        return redirect("/upload")
 
 @app.route("/history")
 def history():
