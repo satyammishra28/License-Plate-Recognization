@@ -14,6 +14,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12 mt-4">
+            {% include "notify.html" %}
             <table class="table table-responsive table-sm ">
                 <thead class="thead-inverse">
                     <tr>
@@ -29,10 +30,13 @@
                         <td><img src="{{item.file}}"  alt="{{item.file}}" width="300"></td>
                         <td class="align-middle"><span class="display-3">{{item.result.ocr_text}}</span></td>
                         <td scope="row"><i class="fa fa-calendar" aria-hidden="true"></i> {{item.date}}</td>
+                        <td><form method="POST" action="/delete">
+                            <input type="hidden" name="imgid" value="{{item.imgid}}">
+                            <input type="hidden" name="id" value="{{item.id}}">
+                            <button class="btn" title="remove item"><i class="fas fa-times text-danger"></i></button>
+                        </form></td>
                     </tr>
                     {% endfor %}
-                    
-                    
                 </tbody>
             </table>
         </div>

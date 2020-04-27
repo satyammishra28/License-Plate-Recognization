@@ -7,6 +7,7 @@ from app.detector import detect_item
 from werkzeug.utils import secure_filename
 import os
 import json
+import cv2
 
 @app.route('/')
 @app.route('/index')
@@ -51,7 +52,17 @@ def uploadImage():
 def showtext(filepath):
     servepath = filepath[filepath.find('static')-1:]
     text = detect_item(filepath,app.config.get('APIKEY'))
-    print(text,type(text))
+    img = cv2.imread(filepath)
+    datadict  = json.loads(text)
+    if datadict.get('message').lower() =='success':
+        if 'result' in datadict:
+            p = datadict.get('result')[0].get('prediction')[0]
+            img = cv2.rectangle(img,(p['xmin'],p['ymin']),(p['xmax'],p['ymax']),(255,0,0,),2)
+            cv2.imwrite(filepath,img)
+        else:
+            print("error, no result")
+    else:
+        print("error,failed")
     scan =Prediction(img_id=session['imgid'],output=text)
     db.session.add(scan)
     db.session.commit()
@@ -69,7 +80,7 @@ def predict():
 @app.route("/history")
 def history():
     upload_path = '/static/uploads/'
-    data = Prediction.query.all()
+    data = Prediction.query.all()[::-1]
     tabbed_data = []
     for i,item in enumerate(data):
         datadict  = json.loads(item.output)
@@ -82,11 +93,34 @@ def history():
                     rowdict['file'] = upload_path+filename
                     rowdict['result'] = pred_dict[0]
                     rowdict['date'] = item.created_on
+                    rowdict['imgid'] = item.img_id
+                    rowdict['id'] = item.id
                     tabbed_data.append(rowdict)
                 except Exception as e:
-                    print("eror",datadict.get('result')[0])
+                    pass
     return render_template('history.html', data=tabbed_data)
 
 
-    
+@app.route('/delete', methods=['POST'])
+def delete_image():
+    if request.method =='POST':
+        imgid = request.form.get('imgid')
+        id = request.form.get('id')
+        try:
+            row = db.session.query(Prediction).filter_by(id = id).first()
+            db.session.delete(row)
+            db.session.commit()
+        except Exception as e:
+            pass
+        try:
+            row = db.session.query(MyUpload).filter_by(id = imgid).first()
+            print(row)
+            db.session.delete(row)
+            db.session.commit()
+        except Exception as e:
+            print(e)
+        try:os.remove("app"+row.img)
+        except:pass
+        flash("data removed from database","success")
+        return redirect('/history')
 
