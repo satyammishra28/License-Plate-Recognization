@@ -64,8 +64,24 @@ def predict():
 
 @app.route("/history")
 def history():
+    upload_path = '/static/uploads/'
     data = Prediction.query.all()
-    return render_template('history.html', data=data)
+    tabbed_data = []
+    for i,item in enumerate(data):
+        datadict  = json.loads(item.output)
+        if datadict.get('message').lower() =='success':
+            if 'result' in datadict:
+                try:
+                    rowdict= {}
+                    pred_dict = datadict.get('result')[0].get('prediction')
+                    filename =  datadict.get('result')[0].get('input')
+                    rowdict['file'] = upload_path+filename
+                    rowdict['result'] = pred_dict[0]
+                    rowdict['date'] = item.created_on
+                    tabbed_data.append(rowdict)
+                except Exception as e:
+                    print("eror",datadict.get('result')[0])
+    return render_template('history.html', data=tabbed_data)
 
 
     
