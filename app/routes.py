@@ -50,6 +50,8 @@ def uploadImage():
     return render_template('upload.html',title='view uploads')
 
 def showtext(filepath):
+    session['last_image'] = None
+    session['prediction'] = None
     servepath = filepath[filepath.find('static')-1:]
     text = detect_item(filepath,app.config.get('APIKEY'))
     img = cv2.imread(filepath)
@@ -66,13 +68,21 @@ def showtext(filepath):
     scan =Prediction(img_id=session['imgid'],output=text)
     db.session.add(scan)
     db.session.commit()
+    session['last_image'] = servepath
+    session['prediction'] = text
     return render_template('result.html',filename = servepath, data = json.loads(text))
 
 @app.route('/predict')
 def predict():
-    if 'path' in session:
+    if 'last_image' in session and 'prediction' in session:
+        return render_template('result.html',filename = session['last_image'], data = json.loads(session['prediction']))
+    elif 'path' in session:
         filename=session['path']
-        return showtext(filename)
+        if os.path.exists(filename):
+            return showtext(filename)
+        else: 
+            flash("please upload a new image to view prediction","danger")
+            return redirect("/upload")
     else:
         flash("please upload a new image to view prediction","warning")
         return redirect("/upload")
