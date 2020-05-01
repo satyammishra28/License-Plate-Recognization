@@ -42,6 +42,10 @@ def uploadImage():
             flash('file uploaded and saved','success')
             session['uploaded_file'] = f"/static/uploads/{filename}"
             session['path']=path
+            try:
+                del session['last_image'] 
+                del session['prediction']
+            except:pass
             return redirect(request.url)
         else:
             flash('wrong file selected, only PNG and JPG images allowed','danger')
@@ -50,8 +54,10 @@ def uploadImage():
     return render_template('upload.html',title='view uploads')
 
 def showtext(filepath):
-    session['last_image'] = None
-    session['prediction'] = None
+    try:
+        del session['last_image'] 
+        del session['prediction'] 
+    except : pass
     servepath = filepath[filepath.find('static')-1:]
     text = detect_item(filepath,app.config.get('APIKEY'))
     img = cv2.imread(filepath)
